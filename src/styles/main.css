@@ -103,6 +103,11 @@ body,
   border-radius: 6px;
 }
 
+.note-area-element {
+  width: 100%;
+  height: 500px;
+}
+
 /* 
 .iframe-url::before {
   content: attr(data-item);

@@ -2,27 +2,52 @@
 import { savedTabList } from '~/logic/storage'
 import { getMessage } from '~/background/i18n'
 
-const parsedSavedTabList = computed<IframeTab[]>(() => {
+const parsedSavedTabList = computed<NoteTab[]>(() => {
   const parsedSavedTabList = JSON.parse(savedTabList.value);
   console.log(parsedSavedTabList);
   if (parsedSavedTabList.length === 0) {
     parsedSavedTabList.push({
       uuid: crypto.randomUUID(),
       title: getMessage("newTabTitle"),
-      url: '',
+      text: '',
       active: true
     });
   }
   return parsedSavedTabList;
 });
 
-// const tabList: Ref<Array<IframeTab>> = ref([]);
+// watch(parsedSavedTabList, (next, prev) => {
+//   savedTabList.value = JSON.stringify(parsedSavedTabList.value);
+// });
+
+// const tabList: Ref<Array<NoteTab>> = ref([]);
 const activateDate: Ref<Date> = ref(new Date());
+// const noteAreaText: Ref<string> = ref("");
+
+// watch(noteAreaText, (next, prev) => {
+//   console.log("noteAreaText",noteAreaText.value);
+//   const parsedSavedTabList = JSON.parse(savedTabList.value);
+//   if (parsedSavedTabList.length === 0) {
+//     return "";
+//   }
+//   const activeTab: NoteTab | undefined = parsedSavedTabList.find((tabItem: NoteTab) => tabItem.active);
+//   activeTab.text = noteAreaText.value;
+//   return noteAreaText;
+// });
+
+// const noteAreaText = computed<string>(() => {
+//   const parsedSavedTabList = JSON.parse(savedTabList.value);
+//   if (parsedSavedTabList.length === 0) {
+//     return "";
+//   }
+//   const activeTab: NoteTab | undefined = parsedSavedTabList.find((tabItem: NoteTab) => tabItem.active);
+//   return activeTab ? activeTab.text : "";
+// });
 
 
 console.log(parsedSavedTabList);
 function fetchIframe(event: any) {
-  const activeTab: IframeTab | undefined = parsedSavedTabList.value.find(tabItem => tabItem.active);
+  const activeTab: NoteTab | undefined = parsedSavedTabList.value.find(tabItem => tabItem.active);
   const fetchUrl: string = event.target.value;
   if (!fetchUrl) {
     return; // URLが空なのでリターン、何もしない
@@ -30,7 +55,7 @@ function fetchIframe(event: any) {
   const fetchDomain = fetchUrl.replaceAll(/http.*?\/\//g, "").replaceAll(/\/.*/g, "");
   if (activeTab) {
     activeTab.active = true;
-    activeTab.url = fetchUrl;
+    activeTab.text = fetchUrl;
     activeTab.title = activeTab.title ? activeTab.title : fetchDomain;
     parsedSavedTabList.value.forEach(tabItem => {
       if (tabItem.uuid === activeTab.uuid) {
@@ -54,35 +79,24 @@ function fetchIframe(event: any) {
   // document.getElementsByClassName(".iframe-element").item(0).src = "";
 }
 
-function iframeReload() {
-  const inputValue = document.getElementsByClassName("iframe-input-url")[0].value
-  if (inputValue) {
-    document.getElementById("iframe-content").src = inputValue; // インプットで上書き
-    document.getElementById("iframe-content").src += ''; // リロードさせる
-  }
+function fetchTabText() {
+  const activeTab: NoteTab | undefined = parsedSavedTabList.value.find(tabItem => tabItem.active);
+  return activeTab?.text;
 }
-function openWindow() {
-  const inputValue = document.getElementsByClassName("iframe-input-url")[0].value
-  if (inputValue) {
-    chrome.windows.create(
-      {
-        state: "maximized",
-        url: inputValue,
-        type: "popup"
-      }
-    )
+
+function saveTabText() {
+  console.log("saveTabText()");
+  let activeTab: NoteTab | undefined = parsedSavedTabList.value.find(tabItem => tabItem.active);
+  if (activeTab) {
+    activeTab.text = document.querySelector("#note-area")?.value;
   }
+  savedTabList.value = JSON.stringify(parsedSavedTabList.value);
 }
 
 
-function deleteTab(deleteTab: IframeTab) {
-  const deletedParsedSavedTabList = parsedSavedTabList.value.filter((tabItem: IframeTab) => tabItem.uuid !== deleteTab.uuid);
+function deleteTab(deleteTab: NoteTab) {
+  const deletedParsedSavedTabList = parsedSavedTabList.value.filter((tabItem: NoteTab) => tabItem.uuid !== deleteTab.uuid);
   savedTabList.value = JSON.stringify(deletedParsedSavedTabList);
-}
-
-function fetchUrl() {
-  let activeTab = parsedSavedTabList.value.find(tabItem => tabItem.active);
-  return activeTab ? activeTab.url : '';
 }
 
 function createTab() {
@@ -90,13 +104,13 @@ function createTab() {
   parsedSavedTabList.value.push({
     uuid: crypto.randomUUID(),
     title: getMessage("newTabTitle"),
-    url: '',
+    text: '',
     active: true
   });
   savedTabList.value = JSON.stringify(parsedSavedTabList.value);
 }
 
-function activateTab(e: Event, tab: IframeTab) {
+function activateTab(e: Event, tab: NoteTab) {
   e.stopPropagation();
   parsedSavedTabList.value.forEach(tabItem => {
     if (tab.uuid === tabItem.uuid) {
@@ -108,7 +122,7 @@ function activateTab(e: Event, tab: IframeTab) {
   savedTabList.value = JSON.stringify(parsedSavedTabList.value);
 }
 
-async function editTitle(tab: IframeTab) {
+async function editTitle(tab: NoteTab) {
   savedTabList.value = JSON.stringify(parsedSavedTabList.value.map((tabItem) => {
     if (tabItem.uuid === tab.uuid) {
       tabItem.isUnderEditTitle = true;
@@ -122,7 +136,7 @@ async function editTitle(tab: IframeTab) {
   }
 }
 
-function bindTitle(tab: IframeTab) {
+function bindTitle(tab: NoteTab) {
   savedTabList.value = JSON.stringify(parsedSavedTabList.value.map((tabItem) => {
     if (tabItem.uuid === tab.uuid) {
       tabItem.isUnderEditTitle = false;
@@ -155,10 +169,6 @@ init();
               :class="tab.active ? 'tab-active' : 'tab-passive'" @click="activateTab($event, tab)"
               @dblclick="editTitle(tab)">
               <div class="d-flex align-items-center">
-                <span class="me-1">
-                  <img v-if="tab.url" class="tabs-favicon me-1"
-                    :src="tab.url ? `/_favicon/?pageUrl=${encodeURIComponent(tab.url)}` : ''">
-                </span>
                 <div v-if="!tab.isUnderEditTitle" class="tab-item-title text-truncate cursor-pointer">{{
                   tab.title }}</div>
               </div>
@@ -182,28 +192,17 @@ init();
         </div>
       </template>
 
-      <!-- iframe要素 -->
-      <div class="tools-container d-flex flex-row align-items-center px-2 my-2">
-        <div class="iframe-reload cursor-pointer mx-2" @click="iframeReload()" :title="getMessage('reloadText')">
-          <tabler:reload />
-        </div>
-        <div class="iframe-open-window cursor-pointer ms-2 me-3" @click="openWindow()"
-          :title="getMessage('openWindowText')">
-          <icomoon-free:new-tab />
-        </div>
-        <div class="iframe-url w-100 align-items-center">
-          <ri:chrome-fill class="iframe-favicon" />
-          <input class="form-control iframe-input-url" type="text" name="input-url" :value="fetchUrl()"
-            v-on:keydown.enter="fetchIframe($event)">
-        </div>
+      <!-- note-area -->
+      <div class="note-body">
+        <textarea class="note-area-element" name="note-area-element" id="note-area" cols="30" rows="10"
+          @keyup="saveTabText()" @mouseup="saveTabText()" :value="fetchTabText()"></textarea>
+        <!-- <textarea class="note-area-element" name="note-area-element" id="note-area" cols="30" rows="10"
+            @paste="saveTabText()" @keyup="saveTabText()" @mouseup="saveTabText()" :class="tab.active ? '' : 'd-none'"
+            v-model="tab.text"></textarea> -->
       </div>
 
     </div>
 
-    <div class="iframe-body" v-if="activateDate.getTime() > 0">
-      <iframe id="iframe-content" class="list-scroll iframe-element" :src="fetchUrl()" frameborder="0" style="border: 0"
-        width="650" height="500"></iframe>
-    </div>
 
   </div>
 </template>

@@ -19,10 +19,10 @@
 
 type ValueOf<T> = T[keyof T];
 
-interface IframeTab {
+interface NoteTab {
   uuid: string;
   title: string;
-  url: string;
+  text: string;
   isUnderEditTitle: boolean;
   active: boolean;
 }
