@@ -122,6 +122,9 @@ function saveTabText() {
 
 
 function deleteTab(deleteTab: NoteTab) {
+  if (!confirm(getMessage("confirmDeleteText"))) {
+    return; // cancel
+  }
   parsedSavedTabList.value.forEach(tabItem => tabItem.active = false);
   let deleteTargetTabIdx = 1;
   parsedSavedTabList.value.forEach((tabItem, index) => {

@@ -32,5 +32,8 @@
   },
   "insertSelectedTabText": {
     "message": "選択しているタブのタイトルとURLを差し込む"
+  },
+  "confirmDeleteText": {
+    "message": "このノートを消しますか？(元に戻せません)"
   }
 }

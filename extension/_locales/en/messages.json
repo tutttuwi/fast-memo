@@ -32,5 +32,8 @@
   },
   "insertSelectedTabText": {
     "message": "insert selected tabs title and url"
+  },
+  "confirmDeleteText": {
+    "message": "Do you delete this note?(Never undo)"
   }
 }
