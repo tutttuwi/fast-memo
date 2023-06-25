@@ -1,18 +1,18 @@
 {
   "appName": {
-    "message": "QuickFramer",
+    "message": "FastMemo",
     "description": "The name of the application"
   },
   "appShortName": {
-    "message": "QuickFramer",
+    "message": "FastMemo",
     "description": "The short_name (maximum of 12 characters recommended) is a short version of the app's name."
   },
   "appDescription": {
-    "message": "QuickFramer allows you to open another page within the browser.",
+    "message": "FastMemo allows you to quickly access note on browser popup page.",
     "description": "The description of the application"
   },
   "browserActionTitle": {
-    "message": "QuickFramer",
+    "message": "FastMemo",
     "description": "The title of the browser action button"
   },
   "newTabTitle": {

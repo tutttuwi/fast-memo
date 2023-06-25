@@ -3,16 +3,22 @@ import { savedTabList } from '~/logic/storage'
 import { getMessage } from '~/background/i18n'
 
 const parsedSavedTabList = computed<NoteTab[]>(() => {
-  const parsedSavedTabList = JSON.parse(savedTabList.value);
+  const parsedSavedTabList: Array<NoteTab> = JSON.parse(savedTabList.value);
   console.log(parsedSavedTabList);
   if (parsedSavedTabList.length === 0) {
     parsedSavedTabList.push({
       uuid: crypto.randomUUID(),
       title: getMessage("newTabTitle"),
+      isUnderEditTitle: false,
       text: '',
       active: true
     });
   }
+  const activeTab: NoteTab | undefined = parsedSavedTabList.find((tabItem: NoteTab) => tabItem.active);
+  if (!activeTab) {
+    parsedSavedTabList[parsedSavedTabList.length - 1].active = true;
+  }
+
   return parsedSavedTabList;
 });
 
@@ -70,7 +76,8 @@ function fetchIframe(event: any) {
     parsedSavedTabList.value.push({
       uuid: crypto.randomUUID(),
       title: fetchDomain,
-      url: fetchUrl,
+      text: "",
+      isUnderEditTitle: false,
       active: true
     });
   }
@@ -84,9 +91,12 @@ function fetchIframe(event: any) {
 
 function fetchTabText() {
   const activeTab: NoteTab | undefined = parsedSavedTabList.value.find(tabItem => tabItem.active);
-  textCount.value = activeTab.text.length;
-  lineCount.value = activeTab.text.split("\n").length;
-  return activeTab?.text;
+  if (activeTab) {
+    textCount.value = activeTab.text ? activeTab.text.length : 0;
+    lineCount.value = activeTab.text ? activeTab.text.split("\n").length : 0;
+    return activeTab?.text;
+  }
+  return "";
 }
 
 function fetchTabTitle() {
@@ -103,14 +113,33 @@ function saveTabText() {
   }
   activeTab.text = document.querySelector("#note-area")?.value;
   savedTabList.value = JSON.stringify(parsedSavedTabList.value);
-  textCount.value = activeTab.text.length;
-  lineCount.value = activeTab.text.split("\n").length;
+  if (activeTab) {
+    textCount.value = activeTab.text ? activeTab.text.length : 0;
+    lineCount.value = activeTab.text ? activeTab.text.split("\n").length : 0;
+  }
   showFadeSavedText();
 }
 
 
 function deleteTab(deleteTab: NoteTab) {
-  const deletedParsedSavedTabList = parsedSavedTabList.value.filter((tabItem: NoteTab) => tabItem.uuid !== deleteTab.uuid);
+  parsedSavedTabList.value.forEach(tabItem => tabItem.active = false);
+  let deleteTargetTabIdx = 1;
+  parsedSavedTabList.value.forEach((tabItem, index) => {
+    if (tabItem.uuid === deleteTab.uuid) {
+      deleteTargetTabIdx = index;
+    }
+  });
+  console.log("parsedSavedTabList", parsedSavedTabList);
+  let deletedParsedSavedTabList = parsedSavedTabList.value.filter((tabItem: NoteTab) => tabItem.uuid !== deleteTab.uuid);
+  console.log("deleteTargetTabIdx", deleteTargetTabIdx);
+  deletedParsedSavedTabList.forEach((tabItem, index) => {
+    console.log("index:tab", index)
+    if (index == deleteTargetTabIdx - 1) {
+      tabItem.active = true;
+      console.log("tabItem.active", tabItem)
+    }
+  });
+  console.log("deletedParsedSavedTabList", deletedParsedSavedTabList);
   savedTabList.value = JSON.stringify(deletedParsedSavedTabList);
 }
 
