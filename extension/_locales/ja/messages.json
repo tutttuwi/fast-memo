@@ -18,10 +18,19 @@
   "newTabTitle": {
     "message": "新しいタブ"
   },
-  "reloadText": {
-    "message": "リロード"
+  "savedText": {
+    "message": "保存しました!"
   },
-  "openWindowText": {
-    "message": "ポップアップで開く"
+  "lineCountText": {
+    "message": "行数: "
+  },
+  "textCountText": {
+    "message": "文字数: "
+  },
+  "insertTimeText": {
+    "message": "現在日時を差し込む"
+  },
+  "insertSelectedTabText": {
+    "message": "選択しているタブのタイトルとURLを差し込む"
   }
 }

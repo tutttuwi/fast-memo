@@ -18,10 +18,19 @@
   "newTabTitle": {
     "message": "NewTab"
   },
-  "reloadText": {
-    "message": "reload"
+  "savedText": {
+    "message": "saved!"
   },
-  "openWindowText": {
-    "message": "open popup window"
+  "lineCountText": {
+    "message": "LineCount: "
+  },
+  "textCountText": {
+    "message": "TextCount: "
+  },
+  "insertTimeText": {
+    "message": "insert current time"
+  },
+  "insertSelectedTabText": {
+    "message": "insert selected tabs title and url"
   }
 }

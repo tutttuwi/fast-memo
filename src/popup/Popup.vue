@@ -163,7 +163,7 @@ function bindTitle(tab: NoteTab) {
 function getTime() {
   const nowTime = new Date();
   var area = document.getElementById('note-area');
-  var text = nowTime.toISOString();
+  var text = nowTime.toISOString().replaceAll(/T/g, " ").replaceAll(/Z/g, "");
   //カーソルの位置を基準に前後を分割して、その間に文字列を挿入
   area.value = area.value.substr(0, area.selectionStart)
     + text
@@ -179,7 +179,7 @@ function showFadeSavedText() {
   showSavedText.value = true;
   setTimeout(() => {
     showSavedText.value = false;
-  }, 1000);
+  }, 3000);
 }
 
 async function getSelectTabTitleAndUrl() {
@@ -244,20 +244,20 @@ init();
 
       <div class="d-flex justify-content-between">
         <div class="tools-container d-flex flex-row align-items-center px-2 my-2">
-          <div class="iframe-reload cursor-pointer mx-2" :title="getMessage('reloadText')" @click="getTime()">
+          <div class="iframe-reload cursor-pointer mx-2" :title="getMessage('insertTimeText')" @click="getTime()">
             <ion:time-outline />
           </div>
-          <div class="iframe-reload cursor-pointer mx-2" :title="getMessage('reloadText')"
+          <div class="iframe-reload cursor-pointer mx-2" :title="getMessage('insertSelectedTabText')"
             @click="getSelectTabTitleAndUrl()">
             <lucide:link />
           </div>
         </div>
         <div class="d-flex align-items-center">
           <transition name="fade">
-            <div v-show="showSavedText" class="mx-2">[{{ fetchTabTitle() }}] 保存しました!</div>
+            <div v-show="showSavedText" class="mx-2">[{{ fetchTabTitle() }}] {{ getMessage("savedText") }}</div>
           </transition>
-          <div class="mx-2">行数: {{ lineCount }}</div>
-          <div class="mx-2">文字数: {{ textCount }}</div>
+          <div class="mx-2">{{ getMessage("lineCountText") + lineCount }}</div>
+          <div class="mx-2">{{ getMessage("textCountText") + textCount }}</div>
         </div>
       </div>
 
