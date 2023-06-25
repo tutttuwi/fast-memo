@@ -22,6 +22,9 @@ const parsedSavedTabList = computed<NoteTab[]>(() => {
 
 // const tabList: Ref<Array<NoteTab>> = ref([]);
 const activateDate: Ref<Date> = ref(new Date());
+const textCount: Ref<number> = ref(0);
+const lineCount: Ref<number> = ref(0);
+const showSavedText: Ref<boolean> = ref(false);
 // const noteAreaText: Ref<string> = ref("");
 
 // watch(noteAreaText, (next, prev) => {
@@ -81,16 +84,28 @@ function fetchIframe(event: any) {
 
 function fetchTabText() {
   const activeTab: NoteTab | undefined = parsedSavedTabList.value.find(tabItem => tabItem.active);
+  textCount.value = activeTab.text.length;
+  lineCount.value = activeTab.text.split("\n").length;
   return activeTab?.text;
+}
+
+function fetchTabTitle() {
+  const activeTab: NoteTab | undefined = parsedSavedTabList.value.find(tabItem => tabItem.active);
+  return activeTab?.title;
 }
 
 function saveTabText() {
   console.log("saveTabText()");
   let activeTab: NoteTab | undefined = parsedSavedTabList.value.find(tabItem => tabItem.active);
-  if (activeTab) {
-    activeTab.text = document.querySelector("#note-area")?.value;
+  const textAreaValue = document.querySelector("#note-area")?.value;
+  if (!activeTab || textAreaValue === activeTab.text) {
+    return; // テキストが変更されてない場合は何もしない
   }
+  activeTab.text = document.querySelector("#note-area")?.value;
   savedTabList.value = JSON.stringify(parsedSavedTabList.value);
+  textCount.value = activeTab.text.length;
+  lineCount.value = activeTab.text.split("\n").length;
+  showFadeSavedText();
 }
 
 
@@ -145,6 +160,41 @@ function bindTitle(tab: NoteTab) {
   }));
 }
 
+function getTime() {
+  const nowTime = new Date();
+  var area = document.getElementById('note-area');
+  var text = nowTime.toISOString();
+  //カーソルの位置を基準に前後を分割して、その間に文字列を挿入
+  area.value = area.value.substr(0, area.selectionStart)
+    + text
+    + area.value.substr(area.selectionStart) + "\n";
+  saveTabText();
+}
+
+const QueryInWindow = {
+  windowId: chrome.windows.WINDOW_ID_CURRENT,
+};
+
+function showFadeSavedText() {
+  showSavedText.value = true;
+  setTimeout(() => {
+    showSavedText.value = false;
+  }, 1000);
+}
+
+async function getSelectTabTitleAndUrl() {
+  const tabs = await chrome.tabs.query(QueryInWindow);
+  const selectedTabs = tabs.filter((tabItem: chrome.tabs.Tab) => tabItem.highlighted);
+  const selectedTabsFlatMap = selectedTabs.flatMap((tabItem: chrome.tabs.Tab) => `${tabItem.title}\n${tabItem.url}`);
+  const insertTabInfoText = selectedTabsFlatMap.join("\n");
+  var area = document.getElementById('note-area');
+  //カーソルの位置を基準に前後を分割して、その間に文字列を挿入
+  area.value = area.value.substr(0, area.selectionStart)
+    + insertTabInfoText
+    + area.value.substr(area.selectionStart) + "\n";
+  saveTabText();
+}
+
 function init() {
   let activeTab = parsedSavedTabList.value.find(tabItem => tabItem.active);
   if (activeTab) {
@@ -192,8 +242,27 @@ init();
         </div>
       </template>
 
+      <div class="d-flex justify-content-between">
+        <div class="tools-container d-flex flex-row align-items-center px-2 my-2">
+          <div class="iframe-reload cursor-pointer mx-2" :title="getMessage('reloadText')" @click="getTime()">
+            <ion:time-outline />
+          </div>
+          <div class="iframe-reload cursor-pointer mx-2" :title="getMessage('reloadText')"
+            @click="getSelectTabTitleAndUrl()">
+            <lucide:link />
+          </div>
+        </div>
+        <div class="d-flex align-items-center">
+          <transition name="fade">
+            <div v-show="showSavedText" class="mx-2">[{{ fetchTabTitle() }}] 保存しました!</div>
+          </transition>
+          <div class="mx-2">行数: {{ lineCount }}</div>
+          <div class="mx-2">文字数: {{ textCount }}</div>
+        </div>
+      </div>
+
       <!-- note-area -->
-      <div class="note-body">
+      <div class="note-body m-1">
         <textarea class="note-area-element" name="note-area-element" id="note-area" cols="30" rows="10"
           @keyup="saveTabText()" @mouseup="saveTabText()" :value="fetchTabText()"></textarea>
         <!-- <textarea class="note-area-element" name="note-area-element" id="note-area" cols="30" rows="10"

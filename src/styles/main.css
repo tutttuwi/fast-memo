@@ -106,6 +106,53 @@ body,
 .note-area-element {
   width: 100%;
   height: 500px;
+  resize: none;
+}
+
+/* 表示時の状態 */
+.fade-enter-from {
+  opacity: 0;
+}
+/* 表示時のアクティブ状態 */
+.fade-enter-active {
+  transition: all 0.5s;
+}
+/* 表示時の終了状態 */
+.fade-enter-to {
+  opacity: 1;
+}
+/* 非表示時の状態 */
+.fade-leave-from {
+  opacity: 1;
+}
+/* 非表示時のアクティブ状態 */
+.fade-leave-active {
+  transition: all 0.5s;
+}
+/* 非表示時の終了状態 */
+.fade-leave-to {
+  opacity: 0;
+}
+
+.note-area-element {
+  --sb-track-color: #232e33;
+  --sb-thumb-color: #0d6efd;
+  --sb-size: 5px;
+  scrollbar-color: var(--sb-thumb-color) var(--sb-track-color);
+}
+
+.note-area-element::-webkit-scrollbar {
+  width: var(--sb-size);
+}
+
+.note-area-element::-webkit-scrollbar-track {
+  background: var(--sb-track-color);
+  border-radius: 10px;
+}
+
+.note-area-element::-webkit-scrollbar-thumb {
+  background: var(--sb-thumb-color);
+  border-radius: 10px;
 }
 
 /* 
