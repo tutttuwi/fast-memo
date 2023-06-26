@@ -27,13 +27,16 @@
   "textCountText": {
     "message": "TextCount: "
   },
-  "insertTimeText": {
-    "message": "insert current time"
+  "copyTimeText": {
+    "message": "copy current time"
   },
-  "insertSelectedTabText": {
-    "message": "insert selected tabs title and url"
+  "copySelectedTabText": {
+    "message": "copy selected tabs title and url"
   },
   "confirmDeleteText": {
     "message": "Do you delete this note?(Never undo)"
+  },
+  "copiedText": {
+    "message": "copied!"
   }
 }

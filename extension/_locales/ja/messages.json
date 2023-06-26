@@ -27,13 +27,16 @@
   "textCountText": {
     "message": "文字数: "
   },
-  "insertTimeText": {
-    "message": "現在日時を差し込む"
+  "copyTimeText": {
+    "message": "現在日時をコピーする"
   },
-  "insertSelectedTabText": {
-    "message": "選択しているタブのタイトルとURLを差し込む"
+  "copySelectedTabText": {
+    "message": "選択しているタブのタイトルとURLをコピーする"
   },
   "confirmDeleteText": {
     "message": "このノートを消しますか？(元に戻せません)"
+  },
+  "copiedText": {
+    "message": "コピーしました!"
   }
 }

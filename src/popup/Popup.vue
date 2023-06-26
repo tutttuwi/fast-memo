@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { savedTabList } from '~/logic/storage'
 import { getMessage } from '~/background/i18n'
+import { Vue3Snackbar } from "vue3-snackbar";
+import { useSnackbar } from "vue3-snackbar";
+const snackbar = useSnackbar();
+
 
 const parsedSavedTabList = computed<NoteTab[]>(() => {
   const parsedSavedTabList: Array<NoteTab> = JSON.parse(savedTabList.value);
@@ -194,13 +198,17 @@ function bindTitle(tab: NoteTab) {
 
 function getTime() {
   const nowTime = new Date();
-  var area = document.getElementById('note-area');
+  // var area = document.getElementById('note-area');
   var text = nowTime.toISOString().replaceAll(/T/g, " ").replaceAll(/Z/g, "");
+  navigator.clipboard.writeText(text);
+  snackbar.add({ type: 'success', text: getMessage("copiedText") });
+
   //カーソルの位置を基準に前後を分割して、その間に文字列を挿入
-  area.value = area.value.substr(0, area.selectionStart)
-    + text
-    + area.value.substr(area.selectionStart) + "\n";
-  saveTabText();
+  // area.value = area.value.substr(0, area.selectionStart)
+  //   + text
+  //   + area.value.substr(area.selectionStart) + "\n";
+  // saveTabText();
+
 }
 
 const QueryInWindow = {
@@ -219,12 +227,15 @@ async function getSelectTabTitleAndUrl() {
   const selectedTabs = tabs.filter((tabItem: chrome.tabs.Tab) => tabItem.highlighted);
   const selectedTabsFlatMap = selectedTabs.flatMap((tabItem: chrome.tabs.Tab) => `${tabItem.title}\n${tabItem.url}`);
   const insertTabInfoText = selectedTabsFlatMap.join("\n");
-  var area = document.getElementById('note-area');
-  //カーソルの位置を基準に前後を分割して、その間に文字列を挿入
-  area.value = area.value.substr(0, area.selectionStart)
-    + insertTabInfoText
-    + area.value.substr(area.selectionStart) + "\n";
-  saveTabText();
+  navigator.clipboard.writeText(insertTabInfoText);
+  snackbar.add({ type: 'success', text: getMessage("copiedText") });
+
+  // var area = document.getElementById('note-area');
+  // //カーソルの位置を基準に前後を分割して、その間に文字列を挿入
+  // area.value = area.value.substr(0, area.selectionStart)
+  //   + insertTabInfoText
+  //   + area.value.substr(area.selectionStart) + "\n";
+  // saveTabText();
 }
 
 function init() {
@@ -276,10 +287,10 @@ init();
 
       <div class="d-flex justify-content-between">
         <div class="tools-container d-flex flex-row align-items-center px-2 my-2">
-          <div class="iframe-reload cursor-pointer mx-2" :title="getMessage('insertTimeText')" @click="getTime()">
+          <div class="iframe-reload cursor-pointer mx-2" :title="getMessage('copyTimeText')" @click="getTime()">
             <ion:time-outline />
           </div>
-          <div class="iframe-reload cursor-pointer mx-2" :title="getMessage('insertSelectedTabText')"
+          <div class="iframe-reload cursor-pointer mx-2" :title="getMessage('copySelectedTabText')"
             @click="getSelectTabTitleAndUrl()">
             <lucide:link />
           </div>
@@ -304,6 +315,6 @@ init();
 
     </div>
 
-
   </div>
+  <vue3-snackbar bottom center :duration="1000"></vue3-snackbar>
 </template>
