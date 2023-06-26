@@ -1,7 +1,7 @@
 {
   "name": "__MSG_appName__",
   "displayName": "__MSG_appName__",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "packageManager": "pnpm@7.29.0",
   "description": "FastMemo allows you to quickly access note on browser popup page.",
